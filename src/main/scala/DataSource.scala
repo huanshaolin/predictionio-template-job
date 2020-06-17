@@ -30,7 +30,8 @@ class DataSource(val dsp: DataSourceParams)
     )(sc).map { case (entityId, properties) =>
       val user = try {
         User(address=properties.getOpt[String]("address"),
-          field=properties.getOpt[String]("field")
+          field=properties.getOpt[String]("field"),
+          skills = properties.getOpt[List[String]]("skills")
         )
       } catch {
         case e: Exception => {
@@ -115,7 +116,7 @@ class DataSource(val dsp: DataSourceParams)
   }
 }
 
-case class User(address:Option[String],field:Option[String])
+case class User(address:Option[String],field:Option[String],skills:Option[List[String]])
 
 case class Item(categories: Option[List[String]],descriptionRequire: Option[String],city:Option[String],skills:Option[List[String]])
 
