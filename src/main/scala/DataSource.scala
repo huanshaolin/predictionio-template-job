@@ -49,7 +49,7 @@ class DataSource(val dsp: DataSourceParams)
     )(sc).map { case (entityId, properties) =>
       val item = try {
         // Assume categories is optional property of item.
-        Item(categories = properties.getOpt[String]("categories"),
+        Item(categories = properties.getOpt[List[String]]("categories"),
           descriptionRequire = properties.getOpt[String]("description_require"),
           city = properties.getOpt[String]("city"),
           skills = properties.getOpt[List[String]]("skills")
