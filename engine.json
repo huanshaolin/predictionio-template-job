@@ -14,7 +14,7 @@
         "appName": "MyApp1",
         "unseenOnly": true,
         "seenEvents": ["apply", "save"],
-        "similarEvents": ["save"],
+        "similarEvents": ["apply"],
         "rank": 10,
         "numIterations" : 20,
         "lambda": 0.01,

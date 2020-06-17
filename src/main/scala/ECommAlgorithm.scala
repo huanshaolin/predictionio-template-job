@@ -149,7 +149,7 @@ class ECommAlgorithm(val ap: ECommAlgorithmParams)
     itemStringIntMap: BiMap[String, Int],
     data: PreparedData): RDD[MLlibRating] = {
 
-    val mllibRatings = data.viewEvents
+    val mllibRatings = data.applyEvents
       .map { r =>
         // Convert user and item String IDs to Int index for MLlib
         val uindex = userStringIntMap.getOrElse(r.user, -1)
