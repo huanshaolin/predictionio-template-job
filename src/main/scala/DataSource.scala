@@ -52,7 +52,7 @@ class DataSource(val dsp: DataSourceParams)
         // Assume categories is optional property of item.
         Item(categories = properties.getOpt[List[String]]("categories"),
           descriptionRequire = properties.getOpt[String]("description_require"),
-          city = properties.getOpt[String]("city"),
+          city = properties.getOpt[String]("location_job"),
           skills = properties.getOpt[List[String]]("skills")
         )
       } catch {
