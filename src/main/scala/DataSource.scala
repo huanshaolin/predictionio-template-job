@@ -29,7 +29,9 @@ class DataSource(val dsp: DataSourceParams)
       entityType = "user"
     )(sc).map { case (entityId, properties) =>
       val user = try {
-        User()
+        User(address=properties.getOpt[String]("address"),
+          field=properties.getOpt[String]("field")
+        )
       } catch {
         case e: Exception => {
           logger.error(s"Failed to get properties ${properties} of" +
@@ -47,7 +49,11 @@ class DataSource(val dsp: DataSourceParams)
     )(sc).map { case (entityId, properties) =>
       val item = try {
         // Assume categories is optional property of item.
-        Item(categories = properties.getOpt[List[String]]("categories"))
+        Item(categories = properties.getOpt[String]("categories"),
+          descriptionRequire = properties.getOpt[String]("description_require"),
+          city = properties.getOpt[String]("city"),
+          skills = properties.getOpt[List[String]]("skills")
+        )
       } catch {
         case e: Exception => {
           logger.error(s"Failed to get properties ${properties} of" +
@@ -61,40 +67,40 @@ class DataSource(val dsp: DataSourceParams)
     val eventsRDD: RDD[Event] = PEventStore.find(
       appName = dsp.appName,
       entityType = Some("user"),
-      eventNames = Some(List("view", "buy")),
+      eventNames = Some(List("apply", "save")),
       // targetEntityType is optional field of an event.
       targetEntityType = Some(Some("item")))(sc)
       .cache()
 
-    val viewEventsRDD: RDD[ViewEvent] = eventsRDD
-      .filter { event => event.event == "view" }
+    val applyEventsRDD: RDD[ApplyEvent] = eventsRDD
+      .filter { event => event.event == "apply" }
       .map { event =>
         try {
-          ViewEvent(
+          ApplyEvent(
             user = event.entityId,
             item = event.targetEntityId.get,
             t = event.eventTime.getMillis
           )
         } catch {
           case e: Exception =>
-            logger.error(s"Cannot convert ${event} to ViewEvent." +
+            logger.error(s"Cannot convert ${event} to ApplyEvent." +
               s" Exception: ${e}.")
             throw e
         }
       }
 
-    val buyEventsRDD: RDD[BuyEvent] = eventsRDD
-      .filter { event => event.event == "buy" }
+    val saveEventsRDD: RDD[SaveEvent] = eventsRDD
+      .filter { event => event.event == "save" }
       .map { event =>
         try {
-          BuyEvent(
+          SaveEvent(
             user = event.entityId,
             item = event.targetEntityId.get,
             t = event.eventTime.getMillis
           )
         } catch {
           case e: Exception =>
-            logger.error(s"Cannot convert ${event} to BuyEvent." +
+            logger.error(s"Cannot convert ${event} to SaveEvent." +
               s" Exception: ${e}.")
             throw e
         }
@@ -103,30 +109,30 @@ class DataSource(val dsp: DataSourceParams)
     new TrainingData(
       users = usersRDD,
       items = itemsRDD,
-      viewEvents = viewEventsRDD,
-      buyEvents = buyEventsRDD
+      applyEvents = applyEventsRDD,
+      saveEvents = saveEventsRDD
     )
   }
 }
 
-case class User()
+case class User(address:Option[String],field:Option[String])
 
-case class Item(categories: Option[List[String]])
+case class Item(categories: Option[String],descriptionRequire: Option[String],city:Option[String],skills:Option[List[String]])
 
-case class ViewEvent(user: String, item: String, t: Long)
+case class ApplyEvent(user: String, item: String, t: Long)
 
-case class BuyEvent(user: String, item: String, t: Long)
+case class SaveEvent(user: String, item: String, t: Long)
 
 class TrainingData(
   val users: RDD[(String, User)],
   val items: RDD[(String, Item)],
-  val viewEvents: RDD[ViewEvent],
-  val buyEvents: RDD[BuyEvent]
+  val applyEvents: RDD[ApplyEvent],
+  val saveEvents: RDD[SaveEvent]
 ) extends Serializable {
   override def toString = {
     s"users: [${users.count()} (${users.take(2).toList}...)]" +
     s"items: [${items.count()} (${items.take(2).toList}...)]" +
-    s"viewEvents: [${viewEvents.count()}] (${viewEvents.take(2).toList}...)" +
-    s"buyEvents: [${buyEvents.count()}] (${buyEvents.take(2).toList}...)"
+    s"applyEvents: [${applyEvents.count()}] (${applyEvents.take(2).toList}...)" +
+    s"saveEvents: [${saveEvents.count()}] (${saveEvents.take(2).toList}...)"
   }
 }

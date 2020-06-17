@@ -64,8 +64,8 @@ class ECommAlgorithm(val ap: ECommAlgorithmParams)
 
   override
   def train(sc: SparkContext, data: PreparedData): ECommModel = {
-    require(!data.viewEvents.take(1).isEmpty,
-      s"viewEvents in PreparedData cannot be empty." +
+    require(!data.applyEvents.take(1).isEmpty,
+      s"applyEvents in PreparedData cannot be empty." +
       " Please check if DataSource generates TrainingData" +
       " and Preprator generates PreparedData correctly.")
     require(!data.users.take(1).isEmpty,
@@ -189,7 +189,7 @@ class ECommAlgorithm(val ap: ECommAlgorithmParams)
     data: PreparedData): Map[Int, Int] = {
     // count number of buys
     // (item index, count)
-    val buyCountsRDD: RDD[(Int, Int)] = data.buyEvents
+    val saveCountsRDD: RDD[(Int, Int)] = data.saveEvents
       .map { r =>
         // Convert user and item String IDs to Int index
         val uindex = userStringIntMap.getOrElse(r.user, -1)
@@ -212,7 +212,7 @@ class ECommAlgorithm(val ap: ECommAlgorithmParams)
       .map { case (u, i, v) => (i, 1) } // key is item
       .reduceByKey{ case (a, b) => a + b } // count number of items occurrence
 
-    buyCountsRDD.collectAsMap.toMap
+    saveCountsRDD.collectAsMap.toMap
   }
 
   override

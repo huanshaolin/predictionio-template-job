@@ -4,17 +4,17 @@
   "engineFactory": "org.example.ecommercerecommendation.ECommerceRecommendationEngine",
   "datasource": {
     "params" : {
-      "appName": "INVALID_APP_NAME"
+      "appName": "MyApp1"
     }
   },
   "algorithms": [
     {
       "name": "ecomm",
       "params": {
-        "appName": "INVALID_APP_NAME",
+        "appName": "MyApp1",
         "unseenOnly": true,
-        "seenEvents": ["buy", "view"],
-        "similarEvents": ["view"],
+        "seenEvents": ["apply", "save"],
+        "similarEvents": ["save"],
         "rank": 10,
         "numIterations" : 20,
         "lambda": 0.01,
