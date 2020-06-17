@@ -117,7 +117,7 @@ class DataSource(val dsp: DataSourceParams)
 
 case class User(address:Option[String],field:Option[String])
 
-case class Item(categories: Option[String],descriptionRequire: Option[String],city:Option[String],skills:Option[List[String]])
+case class Item(categories: Option[List[String]],descriptionRequire: Option[String],city:Option[String],skills:Option[List[String]])
 
 case class ApplyEvent(user: String, item: String, t: Long)
 
